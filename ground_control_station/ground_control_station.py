@@ -33,15 +33,15 @@ class GroundControlStation(Node):
 
 
     def gps_callback(self, msg):
-        self.main_window_.update_marker(msg.latitude, msg.longitude)
+        self.main_window_.update_marker(msg.latitude, msg.longitude, 0.0)
         self.get_logger().info('Received GPS: %f, %f' % (msg.latitude, msg.longitude))
 
 
     
     def timer_callback(self):
         msg = NavSatFix()
-        msg.latitude = random.uniform(40.0, 41.0)
-        msg.longitude = random.uniform(29.0, 30.0)
+        msg.latitude = random.uniform(40.0, 40.2)
+        msg.longitude = random.uniform(29.0, 29.2)
         self.publisher_.publish(msg)
 
 

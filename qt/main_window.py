@@ -58,8 +58,20 @@ class MainWindow(QMainWindow):
         self.left_button_.clicked.connect(lambda: self.send_command("left"))
         self.right_button_.clicked.connect(lambda: self.send_command("right"))
         self.save_log_button_.clicked.connect(self.save_log)
-
+        
+        # Set the URL of the map
         self.map_view_.setUrl(QUrl.fromLocalFile(os.path.abspath("src/ground_control_station/html/folium/dynamic_map.html")))
+        
+        # Set the path of the vehicle icon
+        self.vehicle_icon_path_ = str(os.path.abspath("src/ground_control_station/html/icons/arrow.png"))
+        self.map_view_.loadFinished.connect(self.set_icon)
+
+
+
+    def set_icon(self):
+        js_command = f"setVehicleIcon('{self.vehicle_icon_path_}');"
+        self.map_view_.page().runJavaScript(js_command)
+
 
 
     def send_command(self, command):
@@ -87,8 +99,8 @@ class MainWindow(QMainWindow):
 
     
 
-    def update_marker(self, latitude, longitude):
-        js_command = f"updateMarker({latitude}, {longitude});"
+    def update_marker(self, latitude, longitude, angle):
+        js_command = f"updateMarker({latitude}, {longitude}, {angle});"
         self.map_view_.page().runJavaScript(js_command)
         
 
