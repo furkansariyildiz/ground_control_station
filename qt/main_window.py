@@ -59,10 +59,7 @@ class MainWindow(QMainWindow):
         self.right_button_.clicked.connect(lambda: self.send_command("right"))
         self.save_log_button_.clicked.connect(self.save_log)
 
-        self.timer_ = QTimer()
-        self.timer_.timeout.connect(self.update_telemetry)
-        self.timer_.start(10)
-
+        self.map_view_.setUrl(QUrl.fromLocalFile(os.path.abspath("src/ground_control_station/html/folium/dynamic_map.html")))
 
 
     def send_command(self, command):
@@ -82,11 +79,17 @@ class MainWindow(QMainWindow):
 
 
     def update_telemetry(self):
-        gps_latitude = random.uniform(40.0, 41.0)
+        gps_latitude = random.uniform(40.0, 40.0)
         gps_longitude = random.uniform(29.0, 30.0)
         speed = random.uniform(0, 100)
         self.telemetry_label_.setText(f"Telemetry Information: {gps_latitude:.6f}, {gps_longitude:.6f} | Speed: {speed} m/s")
         self.message_box_.append(f"Received Message from Vehicle: GPS={gps_latitude:.6f}, {gps_longitude:.6f}, Speed={speed}")
+
+    
+
+    def update_marker(self, latitude, longitude):
+        js_command = f"updateMarker({latitude}, {longitude});"
+        self.map_view_.page().runJavaScript(js_command)
         
 
 

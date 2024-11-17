@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import rclpy
+import random
 import qt.main_window
 from rclpy.node import Node
 from std_msgs.msg import String
@@ -28,21 +29,20 @@ class GroundControlStation(Node):
         self.publisher_ = self.create_publisher(NavSatFix, 'gps', 10)
         self.timer_ = self.create_timer(0.5, self.timer_callback)
         self.main_window_timer = self.create_timer(0, self.main_window_timer_callback)
-        timer_period = 0.5
 
 
 
     def gps_callback(self, msg):
-        self.main_window_.load_map(msg.latitude, msg.longitude)
+        self.main_window_.update_marker(msg.latitude, msg.longitude)
         self.get_logger().info('Received GPS: %f, %f' % (msg.latitude, msg.longitude))
 
 
     
     def timer_callback(self):
         msg = NavSatFix()
-        msg.latitude = 40.0
-        msg.longitude = 30.0
-        # self.publisher_.publish(msg)
+        msg.latitude = random.uniform(40.0, 41.0)
+        msg.longitude = random.uniform(29.0, 30.0)
+        self.publisher_.publish(msg)
 
 
     
