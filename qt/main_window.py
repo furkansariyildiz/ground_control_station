@@ -1,8 +1,12 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QPushButton, QLabel, QTextEdit, QHBoxLayout
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import *
+import os
+import folium
 import random
+import io
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QPushButton, QLabel, QTextEdit, QHBoxLayout
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineSettings
+from PyQt5.QtCore import Qt, QTimer,QUrl
+from PyQt5.QtGui import *
 
 
 
@@ -17,6 +21,12 @@ class MainWindow(QMainWindow):
 
         self.layout_ = QVBoxLayout()
         self.central_widget_.setLayout(self.layout_)
+
+        # Create a map
+        self.map_view_ = QWebEngineView()
+        self.layout_.addWidget(self.map_view_)
+
+        self.load_map(40.0, 30.0)
 
         self.status_label_ = QLabel("Status: Not Connected")
         self.layout_.addWidget(self.status_label_)
@@ -51,7 +61,7 @@ class MainWindow(QMainWindow):
 
         self.timer_ = QTimer()
         self.timer_.timeout.connect(self.update_telemetry)
-        self.timer_.start(1000)
+        self.timer_.start(10)
 
 
 
@@ -61,11 +71,28 @@ class MainWindow(QMainWindow):
 
 
 
+    def load_map(self, latitude, longitude):
+        m = folium.Map(location=[latitude, longitude], zoom_start=14)
+        folium.Marker([latitude, longitude], popup="Vehicle").add_to(m)
+        
+        data = io.BytesIO()
+        m.save(data, close_file=False)
+        self.map_view_.setHtml(data.getvalue().decode())
+
+
+
     def update_telemetry(self):
-        gps = f"{random.uniform(40.0, 41.0):.6f}, {random.uniform(29.0, 30.0):.6f}"
+        gps_latitude = random.uniform(40.0, 41.0)
+        gps_longitude = random.uniform(29.0, 30.0)
         speed = random.uniform(0, 100)
-        self.telemetry_label_.setText(f"Telemetry Information: GPS: {gps} | Speed: {speed} m/s")
-        self.message_box_.append(f"Received message from vehicle: GPS: {gps} | Speed: {speed} m/s")
+        self.telemetry_label_.setText(f"Telemetry Information: {gps_latitude:.6f}, {gps_longitude:.6f} | Speed: {speed} m/s")
+        self.message_box_.append(f"Received Message from Vehicle: GPS={gps_latitude:.6f}, {gps_longitude:.6f}, Speed={speed}")
+        
+
+
+    def update_map_file(self):
+        file_path = os.path.abspath("map.html")  # Tam dosya yolu oluştur
+        self.map_.save(file_path)
 
 
 
@@ -74,3 +101,10 @@ class MainWindow(QMainWindow):
             f.write(self.message_box_.toPlainText())
         self.status_label_.setText("Status: Log Saved")
         
+
+
+if __name__ == "__main__":
+    app = QApplication([])
+    window = MainWindow()
+    window.show()
+    app.exec()

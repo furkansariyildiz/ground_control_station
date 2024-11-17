@@ -16,43 +16,49 @@ import rclpy
 import qt.main_window
 from rclpy.node import Node
 from std_msgs.msg import String
+from sensor_msgs.msg import NavSatFix
 from qt.main_window import MainWindow
 
 class GroundControlStation(Node):
-    def __init__(self):
+    def __init__(self, app, main_window):
         super().__init__('ground_control_station')
-        self.publisher_ = self.create_publisher(String, 'topic', 10)
+        self.app_ = app
+        self.main_window_ = main_window
+        self.gps_subscriber = self.create_subscription(NavSatFix, 'gps', self.gps_callback, 10)
+        self.publisher_ = self.create_publisher(NavSatFix, 'gps', 10)
         self.timer_ = self.create_timer(0.5, self.timer_callback)
+        self.main_window_timer = self.create_timer(0, self.main_window_timer_callback)
         timer_period = 0.5
+
+
+
+    def gps_callback(self, msg):
+        self.main_window_.load_map(msg.latitude, msg.longitude)
+        self.get_logger().info('Received GPS: %f, %f' % (msg.latitude, msg.longitude))
 
 
     
     def timer_callback(self):
-        msg = String()
-        msg.data = 'Hello, World!'
-        self.publisher_.publish(msg)
-        self.get_logger().info('Publishing: "%s"' % msg.data)
+        msg = NavSatFix()
+        msg.latitude = 40.0
+        msg.longitude = 30.0
+        # self.publisher_.publish(msg)
+
+
+    
+    def main_window_timer_callback(self):
+        self.app_.processEvents()
 
 
 def main(args=None):
     rclpy.init(args=args)
-    
-    app = qt.main_window.QApplication(qt.main_window.sys.argv)
+
+    app = qt.main_window.QApplication([])
     main_window = MainWindow()
     main_window.show()
 
-    ground_control_station = GroundControlStation()
-
-    try:
-        while rclpy.ok():
-            rclpy.spin_once(ground_control_station, timeout_sec=0.01)
-            app.processEvents()
-    except KeyboardInterrupt:
-        pass
-    finally:
-        ground_control_station.destroy_node()
-        rclpy.shutdown()
-
+    ground_control_station = GroundControlStation(app, main_window)
+    rclpy.spin(ground_control_station)
 
 
 if __name__ == '__main__':
