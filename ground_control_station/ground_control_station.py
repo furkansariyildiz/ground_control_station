@@ -38,7 +38,7 @@ class GroundControlStation(Node):
         self.main_window_timer = self.create_timer(0, self.main_window_timer_callback)
         self.timer_ = self.create_timer(0.5, self.timer_callback)
 
-        self.vehicle_ = Vehicle(self, 'vehicle1')
+        self.vehicle_1_ = Vehicle(self, 'vehicle1')
         
     
 
@@ -55,15 +55,15 @@ class GroundControlStation(Node):
 
     
     def timer_callback(self):
-        msg = NavSatFix()
-        msg.latitude = random.uniform(40.0, 40.2)
-        msg.longitude = random.uniform(29.0, 29.2)
-        self.publisher_.publish(msg)
+        self.main_window_.update_marker(self.vehicle_1_.get_latitude(), 
+                                        self.vehicle_1_.get_longitude(), 
+                                        self.vehicle_1_.get_yaw())
 
 
     
     def main_window_timer_callback(self):
         self.app_.processEvents()
+
 
 
 def main(args=None):
