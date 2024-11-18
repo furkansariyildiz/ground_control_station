@@ -17,24 +17,40 @@ import random
 import qt.main_window
 from rclpy.node import Node
 from std_msgs.msg import String
-from sensor_msgs.msg import NavSatFix
+from sensor_msgs.msg import NavSatFix, Imu
+from tf_transformations import euler_from_quaternion
 from qt.main_window import MainWindow
+from vehicles.vehicle import Vehicle
+
+
 
 class GroundControlStation(Node):
     def __init__(self, app, main_window):
         super().__init__('ground_control_station')
+        self.gps_subscriber_ = self.create_subscription(NavSatFix, 'gps', self.gps_callback, 10)
+        self.imu_subscriber_ = self.create_subscription(Imu, 'imu', self.imu_callback, 10)
+
+        self.publisher_ = self.create_publisher(NavSatFix, 'gps', 10)
+        
         self.app_ = app
         self.main_window_ = main_window
-        self.gps_subscriber = self.create_subscription(NavSatFix, 'gps', self.gps_callback, 10)
-        self.publisher_ = self.create_publisher(NavSatFix, 'gps', 10)
-        self.timer_ = self.create_timer(0.5, self.timer_callback)
+        
         self.main_window_timer = self.create_timer(0, self.main_window_timer_callback)
+        self.timer_ = self.create_timer(0.5, self.timer_callback)
 
-
+        self.vehicle_ = Vehicle(self, 'vehicle1')
+        
+    
 
     def gps_callback(self, msg):
         self.main_window_.update_marker(msg.latitude, msg.longitude, 0.0)
         self.get_logger().info('Received GPS: %f, %f' % (msg.latitude, msg.longitude))
+
+
+
+    def imu_callback(self, msg: Imu):
+        self.main_window_.update_marker(0.0, 0.0, msg.orientation.z)
+        self.get_logger().info('Received IMU: %f' % msg.orientation.z)
 
 
     

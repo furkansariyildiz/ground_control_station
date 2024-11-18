@@ -2,11 +2,12 @@ from setuptools import setup
 
 package_name = 'ground_control_station'
 qt_package_name = 'qt'
+vehicle_package_name = 'vehicles'
 
 setup(
     name=package_name,
     version='0.0.0',
-    packages=[package_name, qt_package_name],
+    packages=[package_name, qt_package_name, vehicle_package_name],
     install_requires=['setuptools'],
     zip_safe=True,
     author='Furkan',
