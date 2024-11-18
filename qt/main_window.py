@@ -64,7 +64,7 @@ class MainWindow(QMainWindow):
         
         # Set the path of the vehicle icon
         self.vehicle_icon_path_ = str(os.path.abspath("src/ground_control_station/html/icons/arrow.png"))
-        self.map_view_.loadFinished.connect(self.set_icon)
+        # self.map_view_.loadFinished.connect(self.set_icon)
 
 
 
@@ -99,8 +99,8 @@ class MainWindow(QMainWindow):
 
     
 
-    def update_marker(self, latitude, longitude, angle):
-        js_command = f"updateMarker({latitude}, {longitude}, {angle});"
+    def update_marker(self, vehicle_name, latitude, longitude, angle):
+        js_command = f"updateMarker('{vehicle_name}', {latitude}, {longitude}, {angle}, '{self.vehicle_icon_path_}');"
         self.map_view_.page().runJavaScript(js_command)
         
 

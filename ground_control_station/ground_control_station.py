@@ -27,11 +27,6 @@ from vehicles.vehicle import Vehicle
 class GroundControlStation(Node):
     def __init__(self, app, main_window):
         super().__init__('ground_control_station')
-        self.gps_subscriber_ = self.create_subscription(NavSatFix, 'gps', self.gps_callback, 10)
-        self.imu_subscriber_ = self.create_subscription(Imu, 'imu', self.imu_callback, 10)
-
-        self.publisher_ = self.create_publisher(NavSatFix, 'gps', 10)
-        
         self.app_ = app
         self.main_window_ = main_window
         
@@ -39,23 +34,12 @@ class GroundControlStation(Node):
         self.timer_ = self.create_timer(0.5, self.timer_callback)
 
         self.vehicle_1_ = Vehicle(self, 'vehicle1')
-        
-    
-
-    def gps_callback(self, msg):
-        self.main_window_.update_marker(msg.latitude, msg.longitude, 0.0)
-        self.get_logger().info('Received GPS: %f, %f' % (msg.latitude, msg.longitude))
-
-
-
-    def imu_callback(self, msg: Imu):
-        self.main_window_.update_marker(0.0, 0.0, msg.orientation.z)
-        self.get_logger().info('Received IMU: %f' % msg.orientation.z)
 
 
     
     def timer_callback(self):
-        self.main_window_.update_marker(self.vehicle_1_.get_latitude(), 
+        self.main_window_.update_marker(self.vehicle_1_.vehicle_id,
+                                        self.vehicle_1_.get_latitude(), 
                                         self.vehicle_1_.get_longitude(), 
                                         self.vehicle_1_.get_yaw())
 

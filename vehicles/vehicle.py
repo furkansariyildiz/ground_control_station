@@ -9,6 +9,7 @@ from tf_transformations import euler_from_quaternion
 class Vehicle:
     def __init__(self, node, vehicle_id):
         self.__node = node
+        self.vehicle_id = vehicle_id
 
         self.gps_subscriber_ = self.__node.create_subscription(NavSatFix, vehicle_id + '/gps', self.gps_callback, 10)
         self.imu_subscriber_ = self.__node.create_subscription(Imu, vehicle_id + '/imu', self.imu_callback, 10)
@@ -25,6 +26,7 @@ class Vehicle:
         self.__yaw = 0.0
 
         self.timer_ = self.__node.create_timer(0.5, self.timer_callback)
+        
 
 
 

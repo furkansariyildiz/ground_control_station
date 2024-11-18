@@ -16,26 +16,30 @@
     <div id="map" style="width: 100%; height: 100vh;"></div>
     <script>
         var map = L.map('map').setView([40.0, 30.0], 14);
+        var vehicleMarkers = {};
         var marker;
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        function setVehicleIcon(iconPath) {
-            var vehicleIcon = L.icon({
-                iconUrl: iconPath,
-                iconSize: [10, 10],
-                iconAnchor: [25, 25]
-            });
+        function updateMarker(vehicleName, lat, lon, angle, iconPath) {
+            if (!vehicleMarkers[vehicleName]) {
+                var vehicleIcon = L.icon({
+                    iconUrl: iconPath,
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15],
+                });
 
-            marker = L.marker([40.0, 30.0], { icon: vehicleIcon }).addTo(map);
-        }
-
-        function updateMarker(lat, lon, angle) {
-            if (marker != undefined) {
-                marker.setLatLng([lat, lon]);
-                marker.setRotationAngle(angle);
+                vehicleMarkers[vehicleName] = L.marker([lat, lon], {
+                    icon: vehicleIcon,
+                    rotationAngle: angle,
+                    rotationOrigin: "center center"
+                }).addTo(map);
+                window.alert(vehicleName);
+            } else {
+                vehicleMarkers[vehicleName].setLatLng([lat, lon]);
+                vehicleMarkers[vehicleName].setRotationAngle(angle);
             }
         }
     </script>
