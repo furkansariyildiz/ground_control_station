@@ -25,7 +25,7 @@ class Vehicle:
         self.__pitch = 0.0
         self.__yaw = 0.0
 
-        self.timer_ = self.__node.create_timer(0.5, self.timer_callback)
+        self.timer_ = self.__node.create_timer(0.1, self.timer_callback)
         
 
 

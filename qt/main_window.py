@@ -64,7 +64,6 @@ class MainWindow(QMainWindow):
         
         # Set the path of the vehicle icon
         self.vehicle_icon_path_ = str(os.path.abspath("src/ground_control_station/html/icons/arrow.png"))
-        # self.map_view_.loadFinished.connect(self.set_icon)
 
 
 
@@ -106,7 +105,7 @@ class MainWindow(QMainWindow):
 
 
     def update_map_file(self):
-        file_path = os.path.abspath("map.html")  # Tam dosya yolu oluştur
+        file_path = os.path.abspath("map.html") 
         self.map_.save(file_path)
 
 

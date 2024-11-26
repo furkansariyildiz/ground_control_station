@@ -31,9 +31,10 @@ class GroundControlStation(Node):
         self.main_window_ = main_window
         
         self.main_window_timer = self.create_timer(0, self.main_window_timer_callback)
-        self.timer_ = self.create_timer(0.5, self.timer_callback)
+        self.timer_ = self.create_timer(0.1, self.timer_callback)
 
         self.vehicle_1_ = Vehicle(self, 'vehicle1')
+        self.vehicle_2_ = Vehicle(self, 'vehicle2')
 
 
     
@@ -42,6 +43,10 @@ class GroundControlStation(Node):
                                         self.vehicle_1_.get_latitude(), 
                                         self.vehicle_1_.get_longitude(), 
                                         self.vehicle_1_.get_yaw())
+        self.main_window_.update_marker(self.vehicle_2_.vehicle_id,
+                                        self.vehicle_2_.get_latitude(), 
+                                        self.vehicle_2_.get_longitude(), 
+                                        self.vehicle_2_.get_yaw())
 
 
     
