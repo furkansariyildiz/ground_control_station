@@ -43,10 +43,16 @@ class GroundControlStation(Node):
                                         self.vehicle_1_.get_latitude(), 
                                         self.vehicle_1_.get_longitude(), 
                                         self.vehicle_1_.get_yaw())
+        
         self.main_window_.update_marker(self.vehicle_2_.vehicle_id,
                                         self.vehicle_2_.get_latitude(), 
                                         self.vehicle_2_.get_longitude(), 
                                         self.vehicle_2_.get_yaw())
+        
+        self.main_window_.update_telemetry(self.vehicle_1_.vehicle_id,
+                                           self.vehicle_1_.get_latitude(), 
+                                           self.vehicle_1_.get_longitude(), 
+                                           self.vehicle_1_.get_speed())
 
 
     

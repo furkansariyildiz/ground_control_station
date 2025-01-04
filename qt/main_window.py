@@ -46,6 +46,7 @@ class MainWindow(QMainWindow):
         self.layout_.addLayout(self.control_layout_)
 
         self.message_box_ = QTextEdit()
+        self.message_box_.setFixedSize(200, 200)  # Set the desired width and height
         self.message_box_.setReadOnly(True)
         self.message_box_.setPlaceholderText("Vehicle messages will appear here")
         self.layout_.addWidget(self.message_box_)
@@ -89,10 +90,7 @@ class MainWindow(QMainWindow):
 
 
 
-    def update_telemetry(self):
-        gps_latitude = random.uniform(40.0, 40.0)
-        gps_longitude = random.uniform(29.0, 30.0)
-        speed = random.uniform(0, 100)
+    def update_telemetry(self, vehicle_name: str, gps_latitude: float, gps_longitude: float, speed: float):
         self.telemetry_label_.setText(f"Telemetry Information: {gps_latitude:.6f}, {gps_longitude:.6f} | Speed: {speed} m/s")
         self.message_box_.append(f"Received Message from Vehicle: GPS={gps_latitude:.6f}, {gps_longitude:.6f}, Speed={speed}")
 
