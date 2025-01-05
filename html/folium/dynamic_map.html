@@ -17,6 +17,7 @@
     <script>
         var map = L.map('map').setView([40.0, 30.0], 14);
         var vehicleMarkers = {};
+        var selectedVehicle = null;
         var marker;
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -39,6 +40,15 @@
             } else {
                 vehicleMarkers[vehicleName].setLatLng([lat, lon]);
                 vehicleMarkers[vehicleName].setRotationAngle(angle);
+            }
+        }
+
+        function followVehicle(vehicleName) {
+            if (vehicleMarkers[vehicleName]) {
+                selectecVehicle = vehicleName;
+                map.panTo(vehicleMarkers[vehicleName].getLatLng());
+            } else {
+                console.warn("Vehicle not found: " + vehicleName);
             }
         }
     </script>

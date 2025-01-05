@@ -9,3 +9,7 @@
         vehicle_id: 2 
         vehicle_type: "uav"
         vehicle_description: "UAV vehicle"
+      vehicle_3:
+        vehicle_id: 3
+        vehicle_type: "fixed_wing"
+        vehicle_description: "Fixed wing vehicle"
