@@ -15,32 +15,51 @@ from std_msgs.msg import String
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, node):
+    def __init__(self, node: Node):
         super().__init__()
+        # Getting ROS2 node
         self.__node = node
-
-        print("Test-1")
-
-        # Declare parameters
-        self.__node.declare_parameters(
-            namespace='',
-            parameters=[
-                ('vehicle_list.vehicle1.vehicle_id', 1),
-                ('vehicle_list.vehicle1.vehicle_type', 'uav'),
-                ('vehicle_list.vehicle1.vehicle_description', 'UAV vehicle'),
-                ('vehicle_list.vehicle2.vehicle_id', 2),
-                ('vehicle_list.vehicle2.vehicle_type', 'uav'),
-                ('vehicle_list.vehicle2.vehicle_description', 'UAV vehicle')
-            ]
-        )
 
         # Subscribers
 
         # Publishers
         self.selected_vehicle_publisher = self.__node.create_publisher(String, '/selected_vehicle', 10)
 
+        # ROS2 Paramters (Declare and Get)
+        self.__node.declare_parameters(
+            namespace='',
+            parameters=[
+                ('vehicle_list.vehicle1.vehicle_id', rclpy.Parameter.Type.INTEGER),
+                ('vehicle_list.vehicle1.vehicle_type', rclpy.Parameter.Type.STRING),
+                ('vehicle_list.vehicle1.vehicle_description', rclpy.Parameter.Type.STRING),
+                ('vehicle_list.vehicle_2.vehicle_id', rclpy.Parameter.Type.INTEGER),
+                ('vehicle_list.vehicle_2.vehicle_type', rclpy.Parameter.Type.STRING),
+                ('vehicle_list.vehicle_2.vehicle_description', rclpy.Parameter.Type.STRING),
+            ]
+        )
+
+        vehicle_params = self.__node.get_parameters_by_prefix('vehicle_list')
+        
+        vehicles = {}  
+
+        for full_key, parameter_obj in vehicle_params.items():
+            parts = full_key.split('.')
+            if len(parts) == 2:  
+                vehicle_name, param_name = parts
+                if vehicle_name not in vehicles:
+                    vehicles[vehicle_name] = {}
+                vehicles[vehicle_name][param_name] = parameter_obj.value
+
+        for vehicle_name, params in vehicles.items():
+            self.__node.get_logger().info(
+                f"Vehicle: {vehicle_name}, ID: {params.get('vehicle_id')}, "
+                f"Type: {params.get('vehicle_type')}, Description: {params.get('vehicle_description')}"
+            )
+
         # Create Vehicle objects
-        self.vehicle_objects_ = []
+        vehicle_1 = Vehicle(self.__node, 'vehicle1')
+        vehicle_2 = Vehicle(self.__node, 'vehicle2')
+        self.vehicle_objects_ = [vehicle_1, vehicle_2]
 
         self.setWindowTitle("Ground Control Station")
         self.setGeometry(100, 100, 800, 600)
