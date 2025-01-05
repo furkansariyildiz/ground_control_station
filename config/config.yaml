@@ -1,11 +1,11 @@
 /ground_control_station:
   ros__parameters:
-    vehicles:
+    vehicle_list:
       vehicle1: 
         vehicle_id: 1  
         vehicle_type: "uav"
         vehicle_description: "UAV vehicle"
-#      vehicle_2:
-#        vehicle_id: 2 
-#        vehicle_type: "uav"
-#        vehicle_description: "UAV vehicle"
+      vehicle_2:
+        vehicle_id: 2 
+        vehicle_type: "uav"
+        vehicle_description: "UAV vehicle"

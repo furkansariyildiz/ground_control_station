@@ -3,6 +3,8 @@ import os
 import folium
 import random
 import io
+import rclpy
+from rclpy.node import Node
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QPushButton, QLabel, QTextEdit, QHBoxLayout, QListWidget, QComboBox
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineSettings
 from PyQt5.QtCore import Qt, QTimer,QUrl
@@ -17,12 +19,28 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.__node = node
 
+        print("Test-1")
+
+        # Declare parameters
+        self.__node.declare_parameters(
+            namespace='',
+            parameters=[
+                ('vehicle_list.vehicle1.vehicle_id', 1),
+                ('vehicle_list.vehicle1.vehicle_type', 'uav'),
+                ('vehicle_list.vehicle1.vehicle_description', 'UAV vehicle'),
+                ('vehicle_list.vehicle2.vehicle_id', 2),
+                ('vehicle_list.vehicle2.vehicle_type', 'uav'),
+                ('vehicle_list.vehicle2.vehicle_description', 'UAV vehicle')
+            ]
+        )
+
+        # Subscribers
+
+        # Publishers
         self.selected_vehicle_publisher = self.__node.create_publisher(String, '/selected_vehicle', 10)
 
-        # Vehicle List
-        self.vehicle_1_ = Vehicle(self.__node, 'vehicle1')
-        self.vehicle_2_ = Vehicle(self.__node, 'vehicle2')
-        self.vehicles_ = [self.vehicle_1_, self.vehicle_2_]
+        # Create Vehicle objects
+        self.vehicle_objects_ = []
 
         self.setWindowTitle("Ground Control Station")
         self.setGeometry(100, 100, 800, 600)
@@ -70,7 +88,7 @@ class MainWindow(QMainWindow):
         
         # Create a combo box for vehicle selection 
         self.combo_box_ = QComboBox()        
-        for vehicle in self.vehicles_:
+        for vehicle in self.vehicle_objects_:
             self.combo_box_.addItem(vehicle.vehicle_id)
 
         # Add a button to get the selected option
@@ -93,7 +111,30 @@ class MainWindow(QMainWindow):
         # Set the path of the vehicle icon
         self.vehicle_icon_path_ = str(os.path.abspath("src/ground_control_station/html/icons/arrow.png"))
 
+
+
+    def update_vehicle_status_timer_callback(self):
+        self.update_marker(self.vehicle_1_.vehicle_id,
+                            self.vehicle_1_.get_latitude(), 
+                            self.vehicle_1_.get_longitude(), 
+                            self.vehicle_1_.get_yaw())
         
+        self.update_marker(self.vehicle_2_.vehicle_id,
+                            self.vehicle_2_.get_latitude(), 
+                            self.vehicle_2_.get_longitude(), 
+                            self.vehicle_2_.get_yaw())
+        
+        self.update_telemetry(self.vehicle_1_.vehicle_id,
+                              self.vehicle_1_.get_latitude(), 
+                              self.vehicle_1_.get_longitude(), 
+                              self.vehicle_1_.get_speed())
+        
+        self.update_telemetry(self.vehicle_2_.vehicle_id,
+                              self.vehicle_2_.get_latitude(), 
+                              self.vehicle_2_.get_longitude(), 
+                              self.vehicle_2_.get_speed())
+
+
 
     def set_icon(self):
         js_command = f"setVehicleIcon('{self.vehicle_icon_path_}');"
@@ -147,7 +188,11 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == "__main__":
+    rclpy.init()
+    node = rclpy.create_node('ground_control_station')
     app = QApplication([])
-    window = MainWindow()
+    window = MainWindow(node)
     window.show()
+    rclpy.spin(node)
+    rclpy.shutdown()
     app.exec()

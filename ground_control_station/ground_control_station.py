@@ -21,7 +21,7 @@ from sensor_msgs.msg import NavSatFix, Imu
 from tf_transformations import euler_from_quaternion
 from qt.main_window import MainWindow
 from vehicles.vehicle import Vehicle
-
+from collections import defaultdict
 
 
 class GroundControlStation(Node):
@@ -36,12 +36,27 @@ class GroundControlStation(Node):
         self.main_window_.show()
 
         self.app_ = app
-        
+        self.get_logger().info('Ground Control Station Node has been initialized')
         self.main_window_timer = self.create_timer(0, self.main_window_timer_callback)
         self.timer_ = self.create_timer(0.1, self.timer_callback)
 
+        vehicle_params = self.get_parameters_by_prefix('vehicle_list')
+        
+        vehicles = {} 
 
+        for full_key, param in vehicle_params.items():
+            parts = full_key.split('.')
+            if len(parts) == 2:  
+                vehicle_name, param_name = parts
+                if vehicle_name not in vehicles:
+                    vehicles[vehicle_name] = {}
+                vehicles[vehicle_name][param_name] = param.value
 
+        for vehicle_name, params in vehicles.items():
+            self.get_logger().info(
+                f"Vehicle: {vehicle_name}, ID: {params.get('vehicle_id')}, "
+                f"Type: {params.get('vehicle_type')}, Description: {params.get('vehicle_description')}"
+            )
     
     def timer_callback(self):
         pass
