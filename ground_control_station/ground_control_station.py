@@ -25,34 +25,42 @@ from vehicles.vehicle import Vehicle
 
 
 class GroundControlStation(Node):
-    def __init__(self, app, main_window):
+    def __init__(self, app):
         super().__init__('ground_control_station')
+        
+        # Vehicle List
+        # self.vehicle_1_ = Vehicle(self, 'vehicle1')
+        # self.vehicle_2_ = Vehicle(self, 'vehicle2')
+
+        self.main_window_ = MainWindow(self)
+        self.main_window_.show()
+
         self.app_ = app
-        self.main_window_ = main_window
         
         self.main_window_timer = self.create_timer(0, self.main_window_timer_callback)
         self.timer_ = self.create_timer(0.1, self.timer_callback)
 
-        self.vehicle_1_ = Vehicle(self, 'vehicle1')
-        self.vehicle_2_ = Vehicle(self, 'vehicle2')
 
 
     
     def timer_callback(self):
-        self.main_window_.update_marker(self.vehicle_1_.vehicle_id,
-                                        self.vehicle_1_.get_latitude(), 
-                                        self.vehicle_1_.get_longitude(), 
-                                        self.vehicle_1_.get_yaw())
-        
-        self.main_window_.update_marker(self.vehicle_2_.vehicle_id,
-                                        self.vehicle_2_.get_latitude(), 
-                                        self.vehicle_2_.get_longitude(), 
-                                        self.vehicle_2_.get_yaw())
-        
-        self.main_window_.update_telemetry(self.vehicle_1_.vehicle_id,
-                                           self.vehicle_1_.get_latitude(), 
-                                           self.vehicle_1_.get_longitude(), 
-                                           self.vehicle_1_.get_speed())
+        pass
+        # self.selected_vehicle_ = self.main_window_.get_selected_vehicle()
+# 
+        # self.main_window_.update_marker(self.vehicle_1_.vehicle_id,
+        #                                 self.vehicle_1_.get_latitude(), 
+        #                                 self.vehicle_1_.get_longitude(), 
+        #                                 self.vehicle_1_.get_yaw())
+        # 
+        # self.main_window_.update_marker(self.vehicle_2_.vehicle_id,
+        #                                 self.vehicle_2_.get_latitude(), 
+        #                                 self.vehicle_2_.get_longitude(), 
+        #                                 self.vehicle_2_.get_yaw())
+        # 
+        # self.main_window_.update_telemetry(self.vehicle_1_.vehicle_id,
+        #                                    self.vehicle_1_.get_latitude(), 
+        #                                    self.vehicle_1_.get_longitude(), 
+        #                                    self.vehicle_1_.get_speed())
 
 
     
@@ -65,10 +73,7 @@ def main(args=None):
     rclpy.init(args=args)
 
     app = qt.main_window.QApplication([])
-    main_window = MainWindow()
-    main_window.show()
-
-    ground_control_station = GroundControlStation(app, main_window)
+    ground_control_station = GroundControlStation(app)
     rclpy.spin(ground_control_station)
 
 
