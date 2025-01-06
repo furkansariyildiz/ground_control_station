@@ -12,46 +12,68 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+
 import rclpy
-import random
-import qt.main_window
+from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QApplication
 from rclpy.node import Node
-from std_msgs.msg import String
-from sensor_msgs.msg import NavSatFix, Imu
-from tf_transformations import euler_from_quaternion
 from qt.main_window import MainWindow
-from vehicles.vehicle import Vehicle
-from collections import defaultdict
+import signal
+import sys
 
 
 
 class GroundControlStation(Node):
     def __init__(self, app):
         super().__init__('ground_control_station')
-        
+
+        # Start Qt Main Window
         self.main_window_ = MainWindow(self)
         self.main_window_.show()
 
         self.app_ = app
         self.get_logger().info('Ground Control Station Node has been initialized')
-        self.main_window_timer = self.create_timer(0, self.main_window_timer_callback)
+
+        # Qt and ROS event loop
+        self.main_window_timer_ = QTimer()
+        self.main_window_timer_.timeout.connect(self.timer_callback)
+        self.main_window_timer_.start(10)  
+
+    def timer_callback(self):
+        self.app_.processEvents()  # Qt olaylarını işler
+        rclpy.spin_once(self, timeout_sec=0)  # ROS olaylarını işler
+
+    def cleanup(self):
+        self.get_logger().info('Cleaning up resources...')
+        self.main_window_timer_.stop()
+        self.main_window_.close()
 
 
-
-    def main_window_timer_callback(self):
-        self.app_.processEvents()
-
+def signal_handler(ground_control_station):
+    ground_control_station.cleanup()  
+    rclpy.shutdown()  
+    sys.exit(0)  
 
 
 def main(args=None):
     rclpy.init(args=args)
-    app = qt.main_window.QApplication([])
-    ground_control_station = GroundControlStation(app)
-    rclpy.spin(ground_control_station)
+    app = QApplication([])
 
+    ground_control_station = GroundControlStation(app)
+
+    signal.signal(signal.SIGINT, lambda sig, frame: signal_handler(ground_control_station))
+    signal.signal(signal.SIGTERM, lambda sig, frame: signal_handler(ground_control_station))
+
+    try:
+        app.exec()  
+    except Exception as e:
+        print(f"Exception: {e}")
+    finally:
+        ground_control_station.cleanup()  
+        rclpy.shutdown()
 
 
 if __name__ == '__main__':
     main()
 
-    

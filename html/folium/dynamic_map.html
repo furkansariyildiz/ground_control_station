@@ -17,6 +17,7 @@
     <script>
         var map = L.map('map').setView([40.0, 30.0], 14);
         var vehicleMarkers = {};
+        var vehiclePaths = {};
         var selectedVehicle = null;
         var marker;
 
@@ -26,18 +27,21 @@
 
         function updateMarker(vehicleName, lat, lon, angle, iconPath) {
             if (!vehicleMarkers[vehicleName]) {
+                // Create a new icon
                 var vehicleIcon = L.icon({
                     iconUrl: iconPath,
                     iconSize: [30, 30],
                     iconAnchor: [15, 15],
                 });
-
+                
+                // Create a new marker
                 vehicleMarkers[vehicleName] = L.marker([lat, lon], {
                     icon: vehicleIcon,
                     rotationAngle: angle,
                     rotationOrigin: "center center"
                 }).addTo(map);
             } else {
+                // Update the marker position
                 vehicleMarkers[vehicleName].setLatLng([lat, lon]);
                 vehicleMarkers[vehicleName].setRotationAngle(angle);
             }
@@ -45,12 +49,46 @@
 
         function followVehicle(vehicleName) {
             if (vehicleMarkers[vehicleName]) {
+                // Set the selected vehicle
                 selectecVehicle = vehicleName;
+                // Pan to the selected vehicle
                 map.panTo(vehicleMarkers[vehicleName].getLatLng());
             } else {
                 console.warn("Vehicle not found: " + vehicleName);
             }
         }
+
+        function updatePolyline(vehicleName, lat, lon) {
+            if (!vehiclePaths[vehicleName]) {
+                // Create a new path
+                vehiclePaths[vehicleName] = L.polyline([[lat, lon]], {
+                    color: 'red',
+                    weight: 3,
+                    opacity: 0.5
+                }).addTo(map);
+            } else {
+                // Add new point to the path
+                vehiclePaths[vehicleName].addLatLng([lat, lon]);
+            }
+        }
+
+        function unfollowVehicle() {
+            selectedVehicle = null;
+        }
+
+        function clearMarker(vehicleName) {
+            if (vehicleMarkers[vehicleName]) {
+                // Remove the marker
+                map.removeLayer(vehicleMarkers[vehicleName]);
+                delete vehicleMarkers[vehicleName];
+                
+                // Remove the path
+                map.removeLayer(vehiclePaths[vehicleName]);
+                delete vehiclePaths[vehicleName];
+            }
+        }
+
+
     </script>
 </body>
 </html>

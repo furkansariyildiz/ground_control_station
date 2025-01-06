@@ -161,10 +161,9 @@ class MainWindow(QMainWindow):
 
             self.follow_vehicle(self.selected_vehicle_.vehicle_id)
 
-
-    def set_icon(self):
-        js_command = f"setVehicleIcon('{self.vehicle_icon_path_}');"
-        self.map_view_.page().runJavaScript(js_command)
+            self.update_polyline(self.selected_vehicle_.vehicle_id,
+                                 self.selected_vehicle_.get_latitude(), 
+                                 self.selected_vehicle_.get_longitude())
 
 
 
@@ -193,6 +192,13 @@ class MainWindow(QMainWindow):
     def update_marker(self, vehicle_name, latitude, longitude, angle):
         js_command = f"updateMarker('{vehicle_name}', {latitude}, {longitude}, {angle}, '{self.vehicle_icon_path_}');"
         self.map_view_.page().runJavaScript(js_command)
+
+
+
+    def update_polyline(self, vehicle_name, latitude, longitude):
+        js_command = f"updatePolyline('{vehicle_name}', {latitude}, {longitude});"
+        self.map_view_.page().runJavaScript(js_command)
+
 
 
     def follow_vehicle(self, vehicle_name: str):
