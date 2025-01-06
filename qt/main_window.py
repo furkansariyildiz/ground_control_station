@@ -11,7 +11,7 @@ from PyQt5.QtCore import Qt, QTimer,QUrl
 from PyQt5.QtGui import *
 from vehicles.vehicle import Vehicle
 from std_msgs.msg import String
-
+import yaml
 
 
 class MainWindow(QMainWindow):
@@ -26,22 +26,19 @@ class MainWindow(QMainWindow):
         self.selected_vehicle_publisher = self.__node.create_publisher(String, '/selected_vehicle', 10)
 
         # ROS2 Paramters (Declare and Get)
-        self.__node.declare_parameters(
-            namespace='',
-            parameters=[
-                ('vehicle_list.vehicle1.vehicle_id', rclpy.Parameter.Type.INTEGER),
-                ('vehicle_list.vehicle1.vehicle_type', rclpy.Parameter.Type.STRING),
-                ('vehicle_list.vehicle1.vehicle_description', rclpy.Parameter.Type.STRING),
+        with open(os.path.abspath("src/ground_control_station/config/config.yaml"), 'r') as file:
+            config = yaml.safe_load(file.read())
 
-                ('vehicle_list.vehicle_2.vehicle_id', rclpy.Parameter.Type.INTEGER),
-                ('vehicle_list.vehicle_2.vehicle_type', rclpy.Parameter.Type.STRING),
-                ('vehicle_list.vehicle_2.vehicle_description', rclpy.Parameter.Type.STRING),
-
-                ('vehicle_list.vehicle_3.vehicle_id', rclpy.Parameter.Type.INTEGER),
-                ('vehicle_list.vehicle_3.vehicle_type', rclpy.Parameter.Type.STRING),
-                ('vehicle_list.vehicle_3.vehicle_description', rclpy.Parameter.Type.STRING),
-            ]
-        )
+        # Declare parameters dynamically
+        vehicle_list_params = config['/ground_control_station']['ros__parameters']['vehicle_list']
+        for vehicle_name, params in vehicle_list_params.items():
+            for param_name, param_value in params.items():
+                param_type = (
+                    rclpy.Parameter.Type.INTEGER
+                    if isinstance(param_value, int)
+                    else rclpy.Parameter.Type.STRING
+                )
+                self.__node.declare_parameter(f'vehicle_list.{vehicle_name}.{param_name}', param_type)
 
         vehicle_params = self.__node.get_parameters_by_prefix('vehicle_list')
 
@@ -53,7 +50,7 @@ class MainWindow(QMainWindow):
         self.vehicle_list_ = []
         for full_key, parameter_obj in vehicle_params.items():
             parts = full_key.split('.')
-            if len(parts) == 2:  
+            if len(parts) == 2:  # vehicle_list.<vehicle_name>, vehicle_list.<vehicle_name>.<param_name>, ...
                 vehicle_name, param_name = parts
                 if vehicle_name not in self.vehicles_:
                     self.vehicles_[vehicle_name] = {}
@@ -214,7 +211,7 @@ class MainWindow(QMainWindow):
 
 
     def save_log(self):
-        with open("gcs_log.txt", "w") as f:
+        with open(os.path.abspath("src/ground_control_station/logs/gcs.log"), "w") as f:
             f.write(self.message_box_.toPlainText())
         self.status_label_.setText("Status: Log Saved")
         
