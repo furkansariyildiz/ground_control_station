@@ -1,2 +1,6 @@
 .vscode
 *.pyc
+build
+dist
+logs
+ground_control_station.egg-info
